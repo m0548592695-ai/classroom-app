@@ -98,29 +98,28 @@ export default function App() {
     return <StudentSelector onSelect={enterStudent} onBack={() => setScreen('home')} />
   }
 
-  if (screen === 'tasks') {
-    return (
-      <TaskList
-        student={student}
-        tasks={tasks}
-        submissions={submissions}
-        onSelect={setTask}
-        onBack={() => { setStudent(null); setScreen('student-select') }}
-      />
-    )
-  }
-
   if (task) {
-    return (
-      <WorksheetViewer
-        task={task}
-        student={student}
-        onBack={() => setTask(null)}
-        onSubmitted={submitCurrentWork}
-      />
-    )
-  }
+  return (
+    <WorksheetViewer
+      task={task}
+      student={student}
+      onBack={() => setTask(null)}
+      onSubmitted={submitCurrentWork}
+    />
+  )
+}
 
+if (screen === 'tasks') {
+  return (
+    <TaskList
+      student={student}
+      tasks={tasks}
+      submissions={submissions}
+      onSelect={setTask}
+      onBack={() => { setStudent(null); setScreen('student-select') }}
+    />
+  )
+}
   return (
     <div className="home-screen">
       <div className="home-decoration flower-one">🌸</div>
