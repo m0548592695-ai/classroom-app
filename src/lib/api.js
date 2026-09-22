@@ -125,3 +125,15 @@ export async function deleteTask(task) {
     .eq('id', task.id)
   if (error) throw error
 }
+export async function listStudents() {
+  assertConfigured()
+
+  const { data, error } = await supabase
+    .from('students')
+    .select('*')
+    .order('created_at', { ascending: true })
+
+  if (error) throw error
+
+  return data || []
+}
