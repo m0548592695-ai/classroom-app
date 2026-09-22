@@ -6,6 +6,7 @@ import TeacherLogin from './components/TeacherLogin'
 import TeacherDashboard from './components/TeacherDashboard'
 import TaskList from './components/TaskList'
 import WorksheetViewer from './components/WorksheetViewer'
+import { listSubmissions, listTasks, submitWork } from './lib/api'
 
 export default function App() {
   const [screen, setScreen] = useState('home')
