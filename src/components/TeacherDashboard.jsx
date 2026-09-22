@@ -452,7 +452,7 @@ export default function TeacherDashboard({ onLogout }) {
                         .slice(0, 4)
                     }))
                   }
-                  placeholder="4 ספרות"
+                  placeholder="2 ספרות"
                 />
 
                 <small>
