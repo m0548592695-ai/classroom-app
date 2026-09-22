@@ -147,8 +147,8 @@ export default function TeacherDashboard({ onLogout }) {
       return
     }
 
-    if (!/^\d{4}$/.test(loginCode)) {
-      setError('קוד הכניסה חייב להכיל 4 ספרות.')
+    if (!/^\d{2}$/.test(loginCode)) {
+      setError('קוד הכניסה חייב להכיל 2 ספרות.')
       return
     }
 
@@ -442,7 +442,7 @@ export default function TeacherDashboard({ onLogout }) {
                 <input
                   type="text"
                   inputMode="numeric"
-                  maxLength={4}
+                  maxLength={2}
                   value={studentForm.loginCode}
                   onChange={event =>
                     setStudentForm(prev => ({
