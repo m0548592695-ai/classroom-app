@@ -598,3 +598,163 @@ code {
   .worksheet-area { padding-left: 8px; padding-right: 8px; }
   .paper { max-width: calc(100vw - 16px); }
 }
+.student-management-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.student-management-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: #fff;
+  border-radius: 20px;
+  padding: 18px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.05);
+}
+
+.management-flower {
+  width: 52px;
+  height: 52px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  flex-shrink: 0;
+}
+
+.management-student-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.management-student-info strong {
+  font-size: 18px;
+}
+
+.management-student-info span {
+  color: #64748b;
+  font-size: 14px;
+}
+
+.management-student-info small {
+  color: #94a3b8;
+}
+
+.management-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.student-form-section {
+  border: 2px solid #e2e8f0;
+}
+
+.student-form {
+  display: grid;
+  gap: 20px;
+  max-width: 650px;
+}
+
+.student-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-weight: 600;
+}
+
+.student-form input {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid #cbd5e1;
+  border-radius: 12px;
+  padding: 13px 15px;
+  font-size: 16px;
+  font-family: inherit;
+  outline: none;
+}
+
+.student-form input:focus {
+  border-color: #94a3b8;
+}
+
+.student-form label small {
+  font-weight: normal;
+  color: #64748b;
+}
+
+.flower-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.flower-options {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.flower-option {
+  width: 58px;
+  height: 58px;
+  border: 3px solid transparent;
+  border-radius: 16px;
+  background: #f8fafc;
+  font-size: 30px;
+  cursor: pointer;
+  transition: 0.15s;
+}
+
+.flower-option:hover {
+  transform: translateY(-2px);
+}
+
+.flower-option.selected {
+  border-color: var(--flower-color);
+  background: #fff;
+  box-shadow: 0 0 0 3px color-mix(
+    in srgb,
+    var(--flower-color) 20%,
+    transparent
+  );
+}
+
+.student-form-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-start;
+  padding-top: 5px;
+}
+
+.tool-button.primary {
+  background: #2563eb;
+  color: white;
+  border-color: #2563eb;
+}
+
+.tool-button.primary:hover {
+  background: #1d4ed8;
+}
+
+@media (max-width: 600px) {
+  .student-management-card {
+    padding: 14px;
+  }
+
+  .management-actions {
+    flex-direction: column;
+  }
+
+  .student-form-actions {
+    flex-direction: column;
+  }
+
+  .student-form-actions button {
+    width: 100%;
+  }
+}
