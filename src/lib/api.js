@@ -137,3 +137,61 @@ export async function listStudents() {
 
   return data || []
 }
+export async function createStudent({ name, flower, color, loginCode }) {
+  assertConfigured()
+
+  const id = `student-${crypto.randomUUID()}`
+
+  const { data, error } = await supabase
+    .from('students')
+    .insert({
+      id,
+      name,
+      flower,
+      color,
+      login_code: loginCode
+    })
+    .select()
+    .single()
+
+  if (error) throw error
+
+  return data
+}
+
+export async function updateStudent({
+  id,
+  name,
+  flower,
+  color,
+  loginCode
+}) {
+  assertConfigured()
+
+  const { data, error } = await supabase
+    .from('students')
+    .update({
+      name,
+      flower,
+      color,
+      login_code: loginCode
+    })
+    .eq('id', id)
+    .select()
+    .single()
+
+  if (error) throw error
+
+  return data
+}
+
+export async function deleteStudent(id) {
+  assertConfigured()
+
+  const { error } = await supabase
+    .from('students')
+    .delete()
+    .eq('id', id)
+
+  if (error) throw error
+}
