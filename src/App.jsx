@@ -115,9 +115,12 @@ if (screen === 'tasks') {
       student={student}
       tasks={tasks}
       submissions={submissions}
-      onSelect={setTask}
+      onSelect={(selectedTask) => {
+        console.log('TASK CLICKED:', selectedTask)
+        setTask(selectedTask)
+      }}
       onBack={() => { setStudent(null); setScreen('student-select') }}
-    />
+   />
   )
 }
   return (
