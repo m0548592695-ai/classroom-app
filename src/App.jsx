@@ -1,12 +1,11 @@
 import { useState } from 'react'
 import { isSupabaseConfigured } from './lib/supabase'
-import { listSubmissions, listTasks, submitWork } from './lib/api'
+import { listSubmissions, listTasks, submitWork, listStudents} from './lib/api'
 import StudentSelector from './components/StudentSelector'
 import TeacherLogin from './components/TeacherLogin'
 import TeacherDashboard from './components/TeacherDashboard'
 import TaskList from './components/TaskList'
 import WorksheetViewer from './components/WorksheetViewer'
-import { listSubmissions, listTasks, submitWork } from './lib/api'
 
 export default function App() {
   const [screen, setScreen] = useState('home')
