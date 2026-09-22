@@ -6,6 +6,10 @@ export default function StudentSelector({ onSelect, onBack }) {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
+  const [selectedStudent, setSelectedStudent] = useState(null)
+  const [loginCode, setLoginCode] = useState('')
+  const [loginError, setLoginError] = useState('')
+
   useEffect(() => {
     async function loadStudents() {
       try {
@@ -21,6 +25,95 @@ export default function StudentSelector({ onSelect, onBack }) {
     loadStudents()
   }, [])
 
+  function selectStudent(student) {
+    setSelectedStudent(student)
+    setLoginCode('')
+    setLoginError('')
+  }
+
+  function goBackToStudents() {
+    setSelectedStudent(null)
+    setLoginCode('')
+    setLoginError('')
+  }
+
+  function handleLogin(event) {
+    event.preventDefault()
+
+    if (loginCode.length !== 2) {
+      setLoginError('יש להכניס קוד בן 2 ספרות.')
+      return
+    }
+
+    if (loginCode !== selectedStudent.login_code) {
+      setLoginError('הקוד שגוי. נסה שוב.')
+      return
+    }
+
+    setLoginError('')
+    onSelect(selectedStudent)
+  }
+
+  if (selectedStudent) {
+    return (
+      <div className="screen">
+        <button
+          className="back-button"
+          onClick={goBackToStudents}
+        >
+          ← בחירת תלמיד אחר
+        </button>
+
+        <div className="hero">
+          <div className="hero-flower">
+            {selectedStudent.flower}
+          </div>
+
+          <h1>שלום {selectedStudent.name}! 👋</h1>
+
+          <p>הכנס/י את הקוד האישי שלך</p>
+        </div>
+
+        <form
+          className="student-login-form"
+          onSubmit={handleLogin}
+        >
+          <input
+            type="text"
+            inputMode="numeric"
+            maxLength={2}
+            value={loginCode}
+            onChange={event => {
+              setLoginCode(
+                event.target.value
+                  .replace(/\D/g, '')
+                  .slice(0, 2)
+              )
+              setLoginError('')
+            }}
+            placeholder="••"
+            autoFocus
+            className="student-code-input"
+          />
+
+          {loginError && (
+            <div className="error-box">
+              {loginError}
+            </div>
+          )}
+
+          <button
+            type="submit"
+            className="student-login-button"
+            disabled={loginCode.length !== 2}
+          >
+            כניסה 🚀
+          </button>
+        </form>
+      </div>
+    )
+  }
+
   return (
     <div className="screen">
       <button className="back-button" onClick={onBack}>
@@ -29,7 +122,9 @@ export default function StudentSelector({ onSelect, onBack }) {
 
       <div className="hero">
         <div className="hero-flower">🌸</div>
+
         <h1>מי אתה?</h1>
+
         <p>בחר/י את השם שלך</p>
       </div>
 
@@ -54,7 +149,7 @@ export default function StudentSelector({ onSelect, onBack }) {
               style={{
                 '--flower-color': student.color
               }}
-              onClick={() => onSelect(student)}
+              onClick={() => selectStudent(student)}
             >
               <div className="student-flower">
                 {student.flower}
