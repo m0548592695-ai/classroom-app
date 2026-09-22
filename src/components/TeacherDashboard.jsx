@@ -1,7 +1,12 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Download, Trash2, LogOut, FileText, Users, RefreshCw } from 'lucide-react'
-import { deleteSubmission, deleteTask, listSubmissions, listTasks } from '../lib/api'
-import { STUDENTS } from '../data/students'
+import {
+  deleteSubmission,
+  deleteTask,
+  listSubmissions,
+  listTasks,
+  listStudents
+} from '../lib/api'
 import TaskUploader from './TaskUploader'
 
 function formatDate(value) {
@@ -14,16 +19,24 @@ function formatDate(value) {
 export default function TeacherDashboard({ onLogout }) {
   const [tasks, setTasks] = useState([])
   const [submissions, setSubmissions] = useState([])
+  const [students, setStudents] = useState([])
   const [busy, setBusy] = useState(true)
   const [error, setError] = useState('')
 
   async function refresh() {
     setBusy(true)
     setError('')
+
     try {
-      const [t, s] = await Promise.all([listTasks(), listSubmissions()])
+      const [t, s, st] = await Promise.all([
+        listTasks(),
+        listSubmissions(),
+        listStudents()
+      ])
+
       setTasks(t)
       setSubmissions(s)
+      setStudents(st)
     } catch (e) {
       setError(e.message || 'לא הצלחתי לטעון את הנתונים.')
     } finally {
@@ -31,19 +44,26 @@ export default function TeacherDashboard({ onLogout }) {
     }
   }
 
-  useEffect(() => { refresh() }, [])
+  useEffect(() => {
+    refresh()
+  }, [])
 
   const byStudent = useMemo(() => {
     return Object.fromEntries(
-      STUDENTS.map(student => [
+      students.map(student => [
         student.id,
         submissions.filter(s => s.student_id === student.id)
       ])
     )
-  }, [submissions])
+  }, [students, submissions])
 
   async function removeSubmission(item) {
-    if (!confirm(`למחוק את התוצר של ${STUDENTS.find(s => s.id === item.student_id)?.name || 'התלמיד'}?`)) return
+    const student = students.find(s => s.id === item.student_id)
+
+    if (!confirm(`למחוק את התוצר של ${student?.name || 'התלמיד'}?`)) {
+      return
+    }
+
     try {
       await deleteSubmission(item)
       setSubmissions(prev => prev.filter(s => s.id !== item.id))
@@ -53,9 +73,13 @@ export default function TeacherDashboard({ onLogout }) {
   }
 
   async function removeTask(task) {
-    if (!confirm(`למחוק את המשימה "${task.title}" ואת התוצרים שלה?`)) return
+    if (!confirm(`למחוק את המשימה "${task.title}" ואת התוצרים שלה?`)) {
+      return
+    }
+
     try {
       await deleteTask(task)
+
       setTasks(prev => prev.filter(t => t.id !== task.id))
       setSubmissions(prev => prev.filter(s => s.task_id !== task.id))
     } catch (e) {
@@ -69,6 +93,7 @@ export default function TeacherDashboard({ onLogout }) {
     a.download = name
     a.target = '_blank'
     a.rel = 'noreferrer'
+
     document.body.appendChild(a)
     a.click()
     a.remove()
@@ -81,42 +106,81 @@ export default function TeacherDashboard({ onLogout }) {
           <h1>👩‍🏫 לוח המורה</h1>
           <p>ניהול משימות ותוצרים</p>
         </div>
+
         <div className="header-actions">
-          <button className="tool-button" onClick={refresh}><RefreshCw size={18} /> רענון</button>
-          <button className="tool-button" onClick={onLogout}><LogOut size={18} /> יציאה</button>
+          <button className="tool-button" onClick={refresh}>
+            <RefreshCw size={18} />
+            רענון
+          </button>
+
+          <button className="tool-button" onClick={onLogout}>
+            <LogOut size={18} />
+            יציאה
+          </button>
         </div>
       </header>
 
       <main className="teacher-content">
-        {error && <div className="error-box">{error}</div>}
+        {error && (
+          <div className="error-box">
+            {error}
+          </div>
+        )}
 
-        <TaskUploader onCreated={task => setTasks(prev => [task, ...prev])} />
+        <TaskUploader
+          onCreated={task => setTasks(prev => [task, ...prev])}
+        />
 
         <section className="dashboard-section">
           <div className="section-heading">
             <div>
-              <h2><FileText size={22} /> משימות פעילות</h2>
+              <h2>
+                <FileText size={22} />
+                משימות פעילות
+              </h2>
+
               <p>{tasks.length} משימות</p>
             </div>
           </div>
 
-          {busy ? <div className="empty-card">טוען…</div> : tasks.length === 0 ? (
-            <div className="empty-card">עדיין לא הועלו משימות.</div>
+          {busy ? (
+            <div className="empty-card">
+              טוען…
+            </div>
+          ) : tasks.length === 0 ? (
+            <div className="empty-card">
+              עדיין לא הועלו משימות.
+            </div>
           ) : (
             <div className="task-admin-grid">
               {tasks.map(task => {
-                const count = submissions.filter(s => s.task_id === task.id).length
+                const count = submissions.filter(
+                  s => s.task_id === task.id
+                ).length
+
                 return (
                   <div className="task-admin-card" key={task.id}>
                     <div className="task-file-preview">
-                      {task.file_type?.includes('pdf') ? '📄 PDF' : '🖼️ תמונה'}
+                      {task.file_type?.includes('pdf')
+                        ? '📄 PDF'
+                        : '🖼️ תמונה'}
                     </div>
+
                     <div className="task-admin-info">
                       <h3>{task.title}</h3>
+
                       <p>{task.file_name}</p>
-                      <span>{count} מתוך {STUDENTS.length} תלמידים הגישו</span>
+
+                      <span>
+                        {count} מתוך {students.length} תלמידים הגישו
+                      </span>
                     </div>
-                    <button className="icon-danger" title="מחיקת משימה" onClick={() => removeTask(task)}>
+
+                    <button
+                      className="icon-danger"
+                      title="מחיקת משימה"
+                      onClick={() => removeTask(task)}
+                    >
                       <Trash2 size={20} />
                     </button>
                   </div>
@@ -129,49 +193,96 @@ export default function TeacherDashboard({ onLogout }) {
         <section className="dashboard-section">
           <div className="section-heading">
             <div>
-              <h2><Users size={22} /> תוצרים לפי תלמיד</h2>
-              <p>העבודות נשמרות בענן וניתן להוריד אותן בכל עת.</p>
+              <h2>
+                <Users size={22} />
+                תוצרים לפי תלמיד
+              </h2>
+
+              <p>
+                העבודות נשמרות בענן וניתן להוריד אותן בכל עת.
+              </p>
             </div>
           </div>
 
           <div className="student-submissions-grid">
-            {STUDENTS.map(student => (
-              <div className="student-submissions-card" key={student.id}>
-                <div className="student-heading">
-                  <span className="mini-flower" style={{ background: student.color }}>{student.flower}</span>
-                  <h3>{student.name}</h3>
-                  <span className="count-badge">{byStudent[student.id].length}</span>
-                </div>
+            {students.map(student => {
+              const studentSubmissions = byStudent[student.id] || []
 
-                {byStudent[student.id].length === 0 ? (
-                  <div className="no-submissions">עדיין אין תוצרים</div>
-                ) : (
-                  <div className="submission-list">
-                    {byStudent[student.id].map(item => (
-                      <div className="submission-card" key={item.id}>
-                        <img src={item.image_url} alt={`העבודה של ${student.name}`} />
-                        <div className="submission-meta">
-                          <strong>{item.task_title}</strong>
-                          <span>{formatDate(item.submitted_at)}</span>
-                        </div>
-                        <div className="submission-actions">
-                          <button
-                            className="icon-button"
-                            title="הורדה"
-                            onClick={() => download(item.image_url, `${student.name}_${item.task_title}.png`)}
-                          >
-                            <Download size={19} />
-                          </button>
-                          <button className="icon-danger" title="מחיקה" onClick={() => removeSubmission(item)}>
-                            <Trash2 size={19} />
-                          </button>
-                        </div>
-                      </div>
-                    ))}
+              return (
+                <div
+                  className="student-submissions-card"
+                  key={student.id}
+                >
+                  <div className="student-heading">
+                    <span
+                      className="mini-flower"
+                      style={{ background: student.color }}
+                    >
+                      {student.flower}
+                    </span>
+
+                    <h3>{student.name}</h3>
+
+                    <span className="count-badge">
+                      {studentSubmissions.length}
+                    </span>
                   </div>
-                )}
-              </div>
-            ))}
+
+                  {studentSubmissions.length === 0 ? (
+                    <div className="no-submissions">
+                      עדיין אין תוצרים
+                    </div>
+                  ) : (
+                    <div className="submission-list">
+                      {studentSubmissions.map(item => (
+                        <div
+                          className="submission-card"
+                          key={item.id}
+                        >
+                          <img
+                            src={item.image_url}
+                            alt={`העבודה של ${student.name}`}
+                          />
+
+                          <div className="submission-meta">
+                            <strong>{item.task_title}</strong>
+
+                            <span>
+                              {formatDate(item.submitted_at)}
+                            </span>
+                          </div>
+
+                          <div className="submission-actions">
+                            <button
+                              className="icon-button"
+                              title="הורדה"
+                              onClick={() =>
+                                download(
+                                  item.image_url,
+                                  `${student.name}_${item.task_title}.png`
+                                )
+                              }
+                            >
+                              <Download size={19} />
+                            </button>
+
+                            <button
+                              className="icon-danger"
+                              title="מחיקה"
+                              onClick={() =>
+                                removeSubmission(item)
+                              }
+                            >
+                              <Trash2 size={19} />
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )
+            })}
           </div>
         </section>
       </main>
